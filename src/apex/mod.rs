@@ -14,4 +14,5 @@ pub mod schedules;
 pub mod time;
 
 /// Static struct representing a Xng Hypervisor
+#[derive(Debug, Clone)]
 pub struct XngHypervisor;
