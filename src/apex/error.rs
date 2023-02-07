@@ -1,6 +1,7 @@
 use core::mem::MaybeUninit;
 
 use apex_rs::bindings::*;
+use log::trace;
 
 use super::XngHypervisor;
 use crate::bindings::*;
