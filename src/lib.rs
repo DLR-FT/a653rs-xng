@@ -27,12 +27,7 @@ fn panic(info: &core::panic::PanicInfo) -> ! {
         None => "panic of unknown cause occured",
     };
 
-    let (file, line) = match info.location() {
-        Some(location) => (location.file(), location.line()),
-        None => ("unknown location", 0),
-    };
-
-    log::error!("{} in {}:{}", message, file, line);
+    log::error!("panic: {}", info);
 
     // // This function can fail if the message len in bytes is longer than
     // // MAX_ERROR_MESSAGE_SIZE. To make it safe to unwrap, we have to shorten
