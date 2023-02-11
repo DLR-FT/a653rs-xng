@@ -11,7 +11,8 @@ impl ApexProcessP4 for XngHypervisor {
     ) -> Result<ProcessId, ErrorReturnCode> {
         let mut return_code = MaybeUninit::uninit();
         let mut process_id = MaybeUninit::uninit();
-        if attributes.name[31..=32] != [0, 0] {
+        // Ensure that the last two characters of the name are not used.
+        if attributes.name[30..=31] != [0, 0] {
             return Err(ErrorReturnCode::InvalidParam);
         }
         let mut name = [0 as cty::c_char; 30];
