@@ -24,7 +24,7 @@ impl ApexTimeP4 for XngHypervisor {
 }
 
 impl ApexTimeP1 for XngHypervisor {
-    fn timed_wait<L: Locked>(delay_time: ApexSystemTime) -> Result<(), ErrorReturnCode> {
+    fn timed_wait(delay_time: ApexSystemTime) -> Result<(), ErrorReturnCode> {
         let mut return_code = MaybeUninit::uninit();
         unsafe {
             TIMED_WAIT(delay_time, return_code.as_mut_ptr());
@@ -32,7 +32,7 @@ impl ApexTimeP1 for XngHypervisor {
         }
     }
 
-    fn replenish<L: Locked>(budget_time: ApexSystemTime) -> Result<(), ErrorReturnCode> {
+    fn replenish(budget_time: ApexSystemTime) -> Result<(), ErrorReturnCode> {
         let mut return_code = MaybeUninit::uninit();
         unsafe {
             REPLENISH(budget_time, return_code.as_mut_ptr());
