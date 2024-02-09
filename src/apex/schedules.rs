@@ -6,7 +6,7 @@ use super::XngHypervisor;
 use crate::bindings::*;
 
 impl ApexScheduleP2 for XngHypervisor {
-    fn set_module_schedule<L: Locked>(schedule_id: ScheduleId) -> Result<(), ErrorReturnCode> {
+    fn set_module_schedule(schedule_id: ScheduleId) -> Result<(), ErrorReturnCode> {
         let mut return_code = MaybeUninit::uninit();
         unsafe {
             SET_MODULE_SCHEDULE(schedule_id as SCHEDULE_ID_TYPE, return_code.as_mut_ptr());
@@ -14,7 +14,7 @@ impl ApexScheduleP2 for XngHypervisor {
         }
     }
 
-    fn get_module_schedule_status<L: Locked>() -> Result<ApexScheduleStatus, ErrorReturnCode> {
+    fn get_module_schedule_status() -> Result<ApexScheduleStatus, ErrorReturnCode> {
         let mut return_code = MaybeUninit::uninit();
         let mut status = MaybeUninit::uninit();
         unsafe {
@@ -29,9 +29,7 @@ impl ApexScheduleP2 for XngHypervisor {
         }
     }
 
-    fn get_module_schedule_id<L: Locked>(
-        schedule_name: ScheduleName,
-    ) -> Result<ScheduleId, ErrorReturnCode> {
+    fn get_module_schedule_id(schedule_name: ScheduleName) -> Result<ScheduleId, ErrorReturnCode> {
         let mut return_code = MaybeUninit::uninit();
         let mut schedule_id = MaybeUninit::uninit();
         unsafe {

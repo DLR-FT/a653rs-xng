@@ -6,7 +6,7 @@ use super::XngHypervisor;
 use crate::bindings::*;
 
 impl ApexQueuingPortP4 for XngHypervisor {
-    fn create_queuing_port<L: Locked>(
+    fn create_queuing_port(
         queuing_port_name: QueuingPortName,
         max_message_size: MessageSize,
         max_nb_message: MessageRange,
@@ -30,7 +30,7 @@ impl ApexQueuingPortP4 for XngHypervisor {
         }
     }
 
-    fn send_queuing_message<L: Locked>(
+    fn send_queuing_message(
         queuing_port_id: QueuingPortId,
         message: &[ApexByte],
         time_out: ApexSystemTime,
@@ -48,11 +48,11 @@ impl ApexQueuingPortP4 for XngHypervisor {
         }
     }
 
-    unsafe fn receive_queuing_message<L: Locked>(
+    unsafe fn receive_queuing_message(
         queuing_port_id: QueuingPortId,
         time_out: ApexSystemTime,
         message: &mut [ApexByte],
-    ) -> Result<MessageSize, ErrorReturnCode> {
+    ) -> Result<(MessageSize, QueueOverflow), ErrorReturnCode> {
         let mut return_code = MaybeUninit::uninit();
         let mut msg_len = MaybeUninit::uninit();
         RECEIVE_QUEUING_MESSAGE(
@@ -62,11 +62,19 @@ impl ApexQueuingPortP4 for XngHypervisor {
             msg_len.as_mut_ptr(),
             return_code.as_mut_ptr(),
         );
-        ErrorReturnCode::from(return_code.assume_init())?;
-        Ok(msg_len.assume_init() as MessageSize)
+        let error_code = ErrorReturnCode::from(return_code.assume_init());
+        let mut overflowed = false;
+        if let Err(e) = error_code {
+            if ErrorReturnCode::InvalidConfig == e {
+                overflowed = true;
+            } else {
+                error_code?;
+            }
+        };
+        Ok((msg_len.assume_init() as MessageSize, overflowed))
     }
 
-    fn get_queuing_port_status<L: Locked>(
+    fn get_queuing_port_status(
         queuing_port_id: QueuingPortId,
     ) -> Result<QueuingPortStatus, ErrorReturnCode> {
         let mut return_code = MaybeUninit::uninit();
@@ -89,9 +97,7 @@ impl ApexQueuingPortP4 for XngHypervisor {
         }
     }
 
-    fn clear_queuing_port<L: Locked>(
-        queuing_port_id: QueuingPortId,
-    ) -> Result<(), ErrorReturnCode> {
+    fn clear_queuing_port(queuing_port_id: QueuingPortId) -> Result<(), ErrorReturnCode> {
         let mut return_code = MaybeUninit::uninit();
         unsafe {
             CLEAR_QUEUING_PORT(
@@ -104,7 +110,7 @@ impl ApexQueuingPortP4 for XngHypervisor {
 }
 
 impl ApexQueuingPortP1 for XngHypervisor {
-    fn get_queuing_port_id<L: Locked>(
+    fn get_queuing_port_id(
         queuing_port_name: QueuingPortName,
     ) -> Result<QueuingPortId, ErrorReturnCode> {
         let mut return_code = MaybeUninit::uninit();
