@@ -177,7 +177,9 @@ impl ApexProcessP1 for XngHypervisor {
                 attributes: ApexProcessAttribute {
                     period: status.ATTRIBUTES.PERIOD as ApexSystemTime,
                     time_capacity: status.ATTRIBUTES.TIME_CAPACITY as ApexSystemTime,
-                    entry_point: core::mem::transmute(status.ATTRIBUTES.ENTRY_POINT as *const ()),
+                    entry_point: core::mem::transmute::<*const (), extern "C" fn()>(
+                        status.ATTRIBUTES.ENTRY_POINT as *const (),
+                    ),
                     stack_size: status.ATTRIBUTES.STACK_SIZE as StackSize,
                     base_priority: status.ATTRIBUTES.BASE_PRIORITY as Priority,
                     deadline: Deadline::from_repr(status.ATTRIBUTES.DEADLINE).unwrap(),
